@@ -16,7 +16,7 @@ import javafx.event.*;
 import javafx.scene.input.*;
 import javafx.scene.text.*;
 
-public class MiniGolf extends Application implements EventHandler<InputEvent>{
+public class Demo extends Application implements EventHandler<InputEvent>{
 
 	GraphicsContext gc;
 	Image trooper;
@@ -31,7 +31,7 @@ public class MiniGolf extends Application implements EventHandler<InputEvent>{
 
 	public void start(Stage stage){
 
-		stage.setTitle("MiniGolf");
+		stage.setTitle("Demo");
 		Group root = new Group();
 		Canvas canvas = new Canvas(800, 400); // change canvas size
 		root.getChildren().add(canvas);
@@ -40,7 +40,7 @@ public class MiniGolf extends Application implements EventHandler<InputEvent>{
 
 		gc = canvas.getGraphicsContext2D();
 		trooper = new Image("trooper.jpg");
-		gc.drawImage(trooper, 400, 400);
+		gc.drawImage(trooper, 180, 100);
 
 		animate = new AnimateObjects();
 		animate.start();
