@@ -16,7 +16,12 @@ import javafx.event.*;
 import javafx.scene.input.*;
 import javafx.scene.text.*;
 
-public class MiniGolf extends Application{
+public class MiniGolf extends Application implements EventHandler<InputEvent>{
+
+	GraphicsContext gc;
+	Image trooper;
+	int x;
+	AnimateObjects animate;
 
 	public static void main(String[]args){
 
@@ -33,9 +38,19 @@ public class MiniGolf extends Application{
 		Scene scene = new Scene(root);
 		stage.setScene(scene);
 
-		GraphicsContext gc = canvas.getGraphicsContext2D();
-		Image trooper = new Image("trooper.jpg");
+		gc = canvas.getGraphicsContext2D();
+		trooper = new Image("trooper.jpg");
 		gc.drawImage(trooper, 180, 100);
+
+		animate = new AnimateObjects();
+		animate.start();
+
+		scene.addEventHandler(KeyEvent.KEY_PRESSED, this);
+		scene.addEventHandler(MouseEvent.MOUSE_CLICKED, this);
+
+		URL resource = getClass().getResource("test.wav");
+		AudioClip clip = new AudioClip(resource.toString());
+		clip.play();
 
 		stage.show();
 
@@ -45,8 +60,40 @@ public class MiniGolf extends Application{
 
 		public void handle(long now){
 
-			//
+			if (x > -50) {
+				//x++;
+				gc.drawImage(trooper, 180 + x, 100);
 
+				Rectangle2D rect1 = new Rectangle2D(400, 100, 100, 100);
+				gc.fillRect(400, 100, 100, 100);
+
+				Rectangle2D rect2 = new Rectangle2D(180 + x, 100, trooper.getWidth(), trooper.getHeight());
+				if(rect1.intersects(rect2))
+					System.out.println("HIT");
+			}
+			else{
+				gc.setFill(Color.YELLOW);
+				gc.setStroke(Color.BLACK);
+				gc.setLineWidth(1);
+				Font font = Font.font("Arial", FontWeight.NORMAL, 48);
+				gc.setFont(font);
+				gc.fillText("Game Over", 100, 50);
+				gc.strokeText("Game Over", 100, 50);
+			}
+
+		}
+
+	}
+
+	public void handle(final InputEvent event){
+
+		if(event instanceof KeyEvent){
+			if(((KeyEvent)event).getCode() == KeyCode.LEFT)
+				x--;
+		}
+		if(event instanceof MouseEvent){
+			System.out.println(((MouseEvent)event).getX());
+			System.out.println(((MouseEvent)event).getY());
 		}
 
 	}
