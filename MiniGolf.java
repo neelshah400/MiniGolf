@@ -1,3 +1,4 @@
+// JavaFX imports
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.scene.Group;
@@ -16,12 +17,30 @@ import javafx.event.*;
 import javafx.scene.input.*;
 import javafx.scene.text.*;
 
+// other imports
+import java.util.ArrayList;
+
 public class MiniGolf extends Application implements EventHandler<InputEvent>{
 
+	// color variables
+	Color bg, light, dark;
+
+	// font variables
+	Font xs, s, m, l, xl;
+
+	// position variables
+	int fieldX, fieldY, fieldW, fieldH;
+	Rectangle2D field;
+
+	// graphics setup variables
 	GraphicsContext gc;
-	Image trooper;
-	int x;
 	AnimateObjects animate;
+
+	// graphics variables
+	Circle ball;
+
+	// other variables
+	int level;
 
 	public static void main(String[]args){
 
@@ -31,27 +50,56 @@ public class MiniGolf extends Application implements EventHandler<InputEvent>{
 
 	public void start(Stage stage){
 
+		// color variables
+		bg = Color.web("#00E676");
+		light = Color.web("#66FFA6");
+		dark = Color.web("#00B248");
+
+		// font variables
+		xs = Font.font("Roboto", FontWeight.NORMAL, 18);
+		s = Font.font("Roboto", FontWeight.NORMAL, 24);
+		m = Font.font("Roboto", FontWeight.NORMAL, 36);
+		l = Font.font("Roboto", FontWeight.NORMAL, 48);
+		xl = Font.font("Roboto", FontWeight.NORMAL, 64);
+
+		// position variables
+		fieldX = 0;
+		fieldY = 0;
+		fieldW = 600;
+		fieldH = 600;
+
+		// other variables
+		level = 0;
+
+		// graphics setup
 		stage.setTitle("MiniGolf");
 		Group root = new Group();
-		Canvas canvas = new Canvas(800, 400); // change canvas size
+		Canvas canvas = new Canvas(fieldW, fieldH);
 		root.getChildren().add(canvas);
 		Scene scene = new Scene(root);
 		stage.setScene(scene);
 
+		// graphics
 		gc = canvas.getGraphicsContext2D();
-		trooper = new Image("trooper.jpg");
-		gc.drawImage(trooper, 400, 400);
+		field = new Rectangle2D(fieldX, fieldY, fieldW, fieldH);
+		gc.setFill(bg);
+		gc.fillRect(fieldX, fieldY, fieldW, fieldH);
+		ball = new Circle(100, 100, 50);
 
+		// animations setup
 		animate = new AnimateObjects();
 		animate.start();
 
+		// event handlers
 		scene.addEventHandler(KeyEvent.KEY_PRESSED, this);
 		scene.addEventHandler(MouseEvent.MOUSE_CLICKED, this);
 
+		// audio setup
 		URL resource = getClass().getResource("test.wav");
 		AudioClip clip = new AudioClip(resource.toString());
 		clip.play();
 
+		// show stage
 		stage.show();
 
 	}
@@ -60,25 +108,34 @@ public class MiniGolf extends Application implements EventHandler<InputEvent>{
 
 		public void handle(long now){
 
-			if (x > -50) {
-				//x++;
-				gc.drawImage(trooper, 180 + x, 100);
+			// background
+			field = new Rectangle2D(fieldX, fieldY, fieldW, fieldH);
+			gc.setFill(bg);
+			gc.fillRect(fieldX, fieldY, fieldW, fieldH);
 
-				Rectangle2D rect1 = new Rectangle2D(400, 100, 100, 100);
-				gc.fillRect(400, 100, 100, 100);
-
-				Rectangle2D rect2 = new Rectangle2D(180 + x, 100, trooper.getWidth(), trooper.getHeight());
-				if(rect1.intersects(rect2))
-					System.out.println("HIT");
+			// menu
+			if(level == 0){
+				gc.setFill(dark);
+				gc.setFont(xl);
+				gc.fillText("MiniGolf", 175, 64);
+				gc.setFont(m);
+				gc.fillText("Press any key to start.", 125, fieldH - 10);
 			}
+
+			// game
 			else{
-				gc.setFill(Color.YELLOW);
-				gc.setStroke(Color.BLACK);
-				gc.setLineWidth(1);
-				Font font = Font.font("Arial", FontWeight.NORMAL, 48);
-				gc.setFont(font);
-				gc.fillText("Game Over", 100, 50);
-				gc.strokeText("Game Over", 100, 50);
+
+
+
+				// level 1
+				if(level == 1){
+					gc.setFill(dark);
+					gc.setFont(xl);
+					gc.fillText("Level 1", 200, 64);
+					gc.setFont(m);
+					gc.fillText("Press any key to start.", 125, fieldH - 10);
+				}
+
 			}
 
 		}
@@ -87,13 +144,15 @@ public class MiniGolf extends Application implements EventHandler<InputEvent>{
 
 	public void handle(final InputEvent event){
 
-		if(event instanceof KeyEvent){
-			if(((KeyEvent)event).getCode() == KeyCode.LEFT)
-				x--;
+		// menu
+		if(level == 0){
+			if(event instanceof KeyEvent)
+				level++;
 		}
-		if(event instanceof MouseEvent){
-			System.out.println(((MouseEvent)event).getX());
-			System.out.println(((MouseEvent)event).getY());
+
+		// level 1
+		if(level == 1){
+			//
 		}
 
 	}
