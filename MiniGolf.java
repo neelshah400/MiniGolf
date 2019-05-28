@@ -37,7 +37,8 @@ public class MiniGolf extends Application implements EventHandler<InputEvent>{
 	AnimateObjects animate;
 
 	// graphics variables
-	Circle ball;
+	int posX, posY, size, velX, velY, accX, accY;
+	Circle golfBall;
 
 	// other variables
 	int level;
@@ -84,7 +85,9 @@ public class MiniGolf extends Application implements EventHandler<InputEvent>{
 		field = new Rectangle2D(fieldX, fieldY, fieldW, fieldH);
 		gc.setFill(bg);
 		gc.fillRect(fieldX, fieldY, fieldW, fieldH);
-		ball = new Circle(100, 100, 50);
+		posX = 100;
+		posY = 100;
+		size = 30;
 
 		// animations setup
 		animate = new AnimateObjects();
@@ -109,6 +112,7 @@ public class MiniGolf extends Application implements EventHandler<InputEvent>{
 		public void handle(long now){
 
 			// background
+			gc.clearRect(0, 0, fieldW, fieldH);
 			field = new Rectangle2D(fieldX, fieldY, fieldW, fieldH);
 			gc.setFill(bg);
 			gc.fillRect(fieldX, fieldY, fieldW, fieldH);
@@ -125,15 +129,19 @@ public class MiniGolf extends Application implements EventHandler<InputEvent>{
 			// game
 			else{
 
-
+				golfBall = new Circle(posX, posY, size);
+				gc.setFill(Color.WHITE);
+				gc.fillOval(posX, posY, size, size);
+				velX += accX;
+				posX += velX;
+				velY += accY;
+				posY += velY;
 
 				// level 1
 				if(level == 1){
 					gc.setFill(dark);
 					gc.setFont(xl);
 					gc.fillText("Level 1", 200, 64);
-					gc.setFont(m);
-					gc.fillText("Press any key to start.", 125, fieldH - 10);
 				}
 
 			}
@@ -150,9 +158,15 @@ public class MiniGolf extends Application implements EventHandler<InputEvent>{
 				level++;
 		}
 
-		// level 1
-		if(level == 1){
-			//
+		// game
+		else{
+
+
+			// level 1
+			if(level == 1){
+				//
+			}
+
 		}
 
 	}

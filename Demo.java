@@ -40,7 +40,8 @@ public class Demo extends Application implements EventHandler<InputEvent>{
 
 		gc = canvas.getGraphicsContext2D();
 		trooper = new Image("trooper.jpg");
-		gc.drawImage(trooper, 180, 100);
+
+
 
 		animate = new AnimateObjects();
 		animate.start();
