@@ -41,8 +41,6 @@ public class Demo extends Application implements EventHandler<InputEvent>{
 		gc = canvas.getGraphicsContext2D();
 		trooper = new Image("trooper.jpg");
 
-
-
 		animate = new AnimateObjects();
 		animate.start();
 
@@ -91,6 +89,8 @@ public class Demo extends Application implements EventHandler<InputEvent>{
 		if(event instanceof KeyEvent){
 			if(((KeyEvent)event).getCode() == KeyCode.LEFT)
 				x--;
+			if(((KeyEvent)event).getCode() == KeyCode.RIGHT)
+				x++;
 		}
 		if(event instanceof MouseEvent){
 			System.out.println(((MouseEvent)event).getX());

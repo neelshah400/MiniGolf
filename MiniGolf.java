@@ -37,7 +37,7 @@ public class MiniGolf extends Application implements EventHandler<InputEvent>{
 	AnimateObjects animate;
 
 	// graphics variables
-	int posX, posY, size, velX, velY, accX, accY;
+	double posX, posY, size, velX, velY, accX, accY;
 	Circle golfBall;
 
 	// other variables
@@ -85,9 +85,13 @@ public class MiniGolf extends Application implements EventHandler<InputEvent>{
 		field = new Rectangle2D(fieldX, fieldY, fieldW, fieldH);
 		gc.setFill(bg);
 		gc.fillRect(fieldX, fieldY, fieldW, fieldH);
-		posX = 100;
-		posY = 100;
-		size = 30;
+		posX = 300.0;
+		posY = 300.0;
+		size = 30.0;
+		velX = 0.0;
+		velY = 0.0;
+		accX = 0.0;
+		accY = 0.0;
 
 		// animations setup
 		animate = new AnimateObjects();
@@ -95,21 +99,39 @@ public class MiniGolf extends Application implements EventHandler<InputEvent>{
 
 		// event handlers
 		scene.addEventHandler(KeyEvent.KEY_PRESSED, this);
-		scene.addEventHandler(MouseEvent.MOUSE_CLICKED, this);
+		//scene.addEventHandler(MouseEvent.MOUSE_CLICKED, this);
+		scene.addEventHandler(MouseEvent.MOUSE_RELEASED, this);
 
 		// audio setup
 		URL resource = getClass().getResource("test.wav");
 		AudioClip clip = new AudioClip(resource.toString());
-		clip.play();
+		//clip.play();
 
 		// show stage
 		stage.show();
+
+		// print
+		System.out.println("posX\tposY\tsize\tvelX\tvelY\taccX\taccY");
+		for(int i = 0; i < 56; i++)
+			System.out.print("-");
+		System.out.println();
 
 	}
 
 	public class AnimateObjects extends AnimationTimer{
 
 		public void handle(long now){
+
+			// print
+			System.out.println(
+				(double)Math.round(posX * 100) / 100 + "\t" +
+				(double)Math.round(posY * 100) / 100 + "\t" +
+				(double)Math.round(size * 100) / 100 + "\t" +
+				(double)Math.round(velX * 100) / 100 + "\t" +
+				(double)Math.round(velY * 100) / 100 + "\t" +
+				(double)Math.round(accX * 100) / 100 + "\t" +
+				(double)Math.round(accY * 100) / 100
+			);
 
 			// background
 			gc.clearRect(0, 0, fieldW, fieldH);
@@ -136,6 +158,26 @@ public class MiniGolf extends Application implements EventHandler<InputEvent>{
 				posX += velX;
 				velY += accY;
 				posY += velY;
+				if(velX < 0)
+					accX = 0.01;
+				else if(velX > 0)
+					accX = -0.01;
+				else
+					accX = 0.0;
+				if(velY < 0)
+					accY = 0.01;
+				else if(velY > 0)
+					accY = -0.01;
+				else
+					accY = 0.0;
+				if(posX < fieldX || posX > fieldW - size){
+					velX *= -1.0;
+					accX *= -1.0;
+				}
+				if(posY < fieldY || posY > fieldH - size){
+					velY *= -1.0;
+					accY *= -1.0;
+				}
 
 				// level 1
 				if(level == 1){
@@ -160,6 +202,13 @@ public class MiniGolf extends Application implements EventHandler<InputEvent>{
 
 		// game
 		else{
+
+			if(event instanceof MouseEvent){
+				double disX = posX - ((MouseEvent)event).getX();
+				double disY = posY - ((MouseEvent)event).getY();
+				velX += disX / 60;
+				velY += disY / 60;
+			}
 
 
 			// level 1
