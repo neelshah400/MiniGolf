@@ -37,8 +37,14 @@ public class MiniGolf extends Application implements EventHandler<InputEvent>{
 	AnimateObjects animate;
 
 	// graphics variables
+
+	double holeX, holeY, holeSize;
+	Circle hole;
+	Rectangle2D holeRect;
+
 	double posX, posY, size, velX, velY, accX, accY;
 	Circle golfBall;
+	Rectangle2D ballRect;
 
 	// other variables
 	int level;
@@ -81,10 +87,16 @@ public class MiniGolf extends Application implements EventHandler<InputEvent>{
 		stage.setScene(scene);
 
 		// graphics
+
 		gc = canvas.getGraphicsContext2D();
 		field = new Rectangle2D(fieldX, fieldY, fieldW, fieldH);
 		gc.setFill(bg);
 		gc.fillRect(fieldX, fieldY, fieldW, fieldH);
+
+		holeX = 50.0;
+		holeY = 50.0;
+		holeSize = 50.0;
+
 		posX = 300.0;
 		posY = 300.0;
 		size = 30.0;
@@ -151,25 +163,37 @@ public class MiniGolf extends Application implements EventHandler<InputEvent>{
 			// game
 			else{
 
+				gc.setFill(dark);
+				gc.setFont(xl);
+				gc.fillText("Level " + level, 200, 64);
+
+				hole = new Circle(holeX, holeY, holeSize);
+				gc.setFill(Color.ORANGE);
+				gc.fillOval(holeX, holeY, holeSize, holeSize);
+				holeRect = new Rectangle2D(holeX - holeSize, holeY - holeSize, 2 * holeSize, 2 * holeSize);
+
 				golfBall = new Circle(posX, posY, size);
 				gc.setFill(Color.WHITE);
 				gc.fillOval(posX, posY, size, size);
+				ballRect = new Rectangle2D(posX - (0.5 * size), posY - (0.5 * size), size, size);
 				velX += accX;
 				posX += velX;
 				velY += accY;
 				posY += velY;
+
 				if(velX < 0)
-					accX = 0.01;
+					accX = 0.02;
 				else if(velX > 0)
-					accX = -0.01;
+					accX = -0.02;
 				else
 					accX = 0.0;
 				if(velY < 0)
-					accY = 0.01;
+					accY = 0.02;
 				else if(velY > 0)
-					accY = -0.01;
+					accY = -0.02;
 				else
 					accY = 0.0;
+
 				if(posX < fieldX || posX > fieldW - size){
 					velX *= -1.0;
 					accX *= -1.0;
@@ -179,11 +203,13 @@ public class MiniGolf extends Application implements EventHandler<InputEvent>{
 					accY *= -1.0;
 				}
 
+				if(holeRect.contains(ballRect)){
+					level++;
+				}
+
 				// level 1
 				if(level == 1){
-					gc.setFill(dark);
-					gc.setFont(xl);
-					gc.fillText("Level 1", 200, 64);
+					//
 				}
 
 			}
