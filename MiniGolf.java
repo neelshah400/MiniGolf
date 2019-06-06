@@ -40,14 +40,14 @@ public class MiniGolf extends Application implements EventHandler<InputEvent>{
 
 	double holeX, holeY, holeSize;
 	Circle hole;
-	Rectangle2D holeRect;
 
 	double posX, posY, size, velX, velY, accX, accY;
 	Circle golfBall;
-	Rectangle2D ballRect;
 
 	// other variables
 	int level;
+	boolean status;
+	int wait;
 
 	public static void main(String[]args){
 
@@ -77,6 +77,8 @@ public class MiniGolf extends Application implements EventHandler<InputEvent>{
 
 		// other variables
 		level = 0;
+		status = false;
+		wait = 0;
 
 		// graphics setup
 		stage.setTitle("MiniGolf");
@@ -93,17 +95,13 @@ public class MiniGolf extends Application implements EventHandler<InputEvent>{
 		gc.setFill(bg);
 		gc.fillRect(fieldX, fieldY, fieldW, fieldH);
 
+		holeSize = 50.0;
+		size = 30.0;
+
 		holeX = 50.0;
 		holeY = 50.0;
-		holeSize = 50.0;
-
 		posX = 300.0;
 		posY = 300.0;
-		size = 30.0;
-		velX = 0.0;
-		velY = 0.0;
-		accX = 0.0;
-		accY = 0.0;
 
 		// animations setup
 		animate = new AnimateObjects();
@@ -123,7 +121,7 @@ public class MiniGolf extends Application implements EventHandler<InputEvent>{
 		stage.show();
 
 		// print
-		System.out.println("posX\tposY\tsize\tvelX\tvelY\taccX\taccY");
+		System.out.println("level\tposX\tposY\tsize\tvelX\tvelY\taccX\taccY\twait");
 		for(int i = 0; i < 56; i++)
 			System.out.print("-");
 		System.out.println();
@@ -136,13 +134,15 @@ public class MiniGolf extends Application implements EventHandler<InputEvent>{
 
 			// print
 			System.out.println(
+				level + "\t" +
 				(double)Math.round(posX * 100) / 100 + "\t" +
 				(double)Math.round(posY * 100) / 100 + "\t" +
 				(double)Math.round(size * 100) / 100 + "\t" +
 				(double)Math.round(velX * 100) / 100 + "\t" +
 				(double)Math.round(velY * 100) / 100 + "\t" +
 				(double)Math.round(accX * 100) / 100 + "\t" +
-				(double)Math.round(accY * 100) / 100
+				(double)Math.round(accY * 100) / 100 + "\t" +
+				wait
 			);
 
 			// background
@@ -168,14 +168,13 @@ public class MiniGolf extends Application implements EventHandler<InputEvent>{
 				gc.fillText("Level " + level, 200, 64);
 
 				hole = new Circle(holeX, holeY, holeSize);
-				gc.setFill(Color.ORANGE);
+				gc.setFill(dark);
 				gc.fillOval(holeX, holeY, holeSize, holeSize);
-				holeRect = new Rectangle2D(holeX - holeSize, holeY - holeSize, 2 * holeSize, 2 * holeSize);
 
 				golfBall = new Circle(posX, posY, size);
 				gc.setFill(Color.WHITE);
 				gc.fillOval(posX, posY, size, size);
-				ballRect = new Rectangle2D(posX - (0.5 * size), posY - (0.5 * size), size, size);
+
 				velX += accX;
 				posX += velX;
 				velY += accY;
@@ -199,18 +198,34 @@ public class MiniGolf extends Application implements EventHandler<InputEvent>{
 					accX *= -1.0;
 				}
 				if(posY < fieldY || posY > fieldH - size){
+
 					velY *= -1.0;
 					accY *= -1.0;
 				}
 
-				if(holeRect.contains(ballRect)){
-					level++;
+				double dist = Math.sqrt(Math.pow(holeX - posX, 2) + Math.pow(holeY - posY, 2));
+				if(Math.abs(velX) < 0.3 && Math.abs(velY) < 0.3 && hole.contains(posX + size, posY) && hole.contains(posX - size, posY) && hole.contains(posX, posY + size) && hole.contains(posX, posY - size)){
+					velX = 0.0;
+					velY = 0.0;
+					accX = 0.0;
+					accY = 0.0;
+					status = true;
 				}
 
-				// level 1
-				if(level == 1){
-					//
+				if(status)
+					wait++;
+				if(wait == 30){
+					level++;
+					wait = 0;
+					status = false;
+					if(level != 1){
+						holeX = 50.0;
+						holeY = 50.0;
+						posX = 300.0;
+						posY = 300.0;
+					}
 				}
+				// levels
 
 			}
 
@@ -229,7 +244,7 @@ public class MiniGolf extends Application implements EventHandler<InputEvent>{
 		// game
 		else{
 
-			if(event instanceof MouseEvent){
+			if(wait <= 1 && event instanceof MouseEvent){
 				double disX = posX - ((MouseEvent)event).getX();
 				double disY = posY - ((MouseEvent)event).getY();
 				velX += disX / 60;
