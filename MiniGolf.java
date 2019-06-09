@@ -4,7 +4,7 @@ import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
+import javafx.scene.shape.*;
 import javafx.stage.Stage;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -12,7 +12,7 @@ import javafx.scene.image.*;
 import javafx.scene.media.AudioClip;
 import java.net.URL;
 import javafx.application.Application;
-import javafx.geometry.Rectangle2D;
+import javafx.geometry.*;
 import javafx.event.*;
 import javafx.scene.input.*;
 import javafx.scene.text.*;
@@ -37,15 +37,12 @@ public class MiniGolf extends Application implements EventHandler<InputEvent>{
 	AnimateObjects animate;
 
 	// graphics variables
-
-	double holeX, holeY, holeSize;
-	Circle hole;
-
-	double posX, posY, size, velX, velY, accX, accY;
-	Circle golfBall;
+	Level level;
+	Hole hole;
+	Ball ball;
 
 	// other variables
-	int level;
+	int part;
 	boolean status;
 	int wait;
 
@@ -76,7 +73,7 @@ public class MiniGolf extends Application implements EventHandler<InputEvent>{
 		fieldH = 600;
 
 		// other variables
-		level = 0;
+		part = 0;
 		status = false;
 		wait = 0;
 
@@ -89,19 +86,13 @@ public class MiniGolf extends Application implements EventHandler<InputEvent>{
 		stage.setScene(scene);
 
 		// graphics
-
 		gc = canvas.getGraphicsContext2D();
-		field = new Rectangle2D(fieldX, fieldY, fieldW, fieldH);
+		field = new Rectangle2D(fieldX, fieldY, fieldW * 2, fieldH * 2);
 		gc.setFill(bg);
 		gc.fillRect(fieldX, fieldY, fieldW, fieldH);
-
-		holeSize = 50.0;
-		size = 30.0;
-
-		holeX = 50.0;
-		holeY = 50.0;
-		posX = 300.0;
-		posY = 300.0;
+		level = new Level(2, 2, 3, 6, fieldX, fieldY, fieldW, fieldH);
+		hole = new Hole(300.0, 50.0);
+		ball = new Ball(300.0, 540.0);
 
 		// animations setup
 		animate = new AnimateObjects();
@@ -120,30 +111,11 @@ public class MiniGolf extends Application implements EventHandler<InputEvent>{
 		// show stage
 		stage.show();
 
-		// print
-		System.out.println("level\tposX\tposY\tsize\tvelX\tvelY\taccX\taccY\twait");
-		for(int i = 0; i < 56; i++)
-			System.out.print("-");
-		System.out.println();
-
 	}
 
 	public class AnimateObjects extends AnimationTimer{
 
 		public void handle(long now){
-
-			// print
-			System.out.println(
-				level + "\t" +
-				(double)Math.round(posX * 100) / 100 + "\t" +
-				(double)Math.round(posY * 100) / 100 + "\t" +
-				(double)Math.round(size * 100) / 100 + "\t" +
-				(double)Math.round(velX * 100) / 100 + "\t" +
-				(double)Math.round(velY * 100) / 100 + "\t" +
-				(double)Math.round(accX * 100) / 100 + "\t" +
-				(double)Math.round(accY * 100) / 100 + "\t" +
-				wait
-			);
 
 			// background
 			gc.clearRect(0, 0, fieldW, fieldH);
@@ -152,7 +124,7 @@ public class MiniGolf extends Application implements EventHandler<InputEvent>{
 			gc.fillRect(fieldX, fieldY, fieldW, fieldH);
 
 			// menu
-			if(level == 0){
+			if(part == 0){
 				gc.setFill(dark);
 				gc.setFont(xl);
 				gc.fillText("MiniGolf", 175, 64);
@@ -165,67 +137,52 @@ public class MiniGolf extends Application implements EventHandler<InputEvent>{
 
 				gc.setFill(dark);
 				gc.setFont(xl);
-				gc.fillText("Level " + level, 200, 64);
+				gc.fillText("Level " + part, 200, 64);
 
-				hole = new Circle(holeX, holeY, holeSize);
 				gc.setFill(dark);
-				gc.fillOval(holeX, holeY, holeSize, holeSize);
+				for(Obstacle obstacle : level.getObstacles()){
+					gc.fillPolygon(obstacle.getXPoints(), obstacle.getYPoints(), obstacle.getNPoints());
+				}
+				gc.fillOval(hole.getPosX() - hole.getSize(), hole.getPosY() - hole.getSize(), hole.getSize() * 2, hole.getSize() * 2);
 
-				golfBall = new Circle(posX, posY, size);
 				gc.setFill(Color.WHITE);
-				gc.fillOval(posX, posY, size, size);
-
-				velX += accX;
-				posX += velX;
-				velY += accY;
-				posY += velY;
-
-				if(velX < 0)
-					accX = 0.02;
-				else if(velX > 0)
-					accX = -0.02;
-				else
-					accX = 0.0;
-				if(velY < 0)
-					accY = 0.02;
-				else if(velY > 0)
-					accY = -0.02;
-				else
-					accY = 0.0;
-
-				if(posX < fieldX || posX > fieldW - size){
-					velX *= -1.0;
-					accX *= -1.0;
+				gc.fillOval(ball.getPosX() - ball.getSize(), ball.getPosY() - ball.getSize(), ball.getSize() * 2, ball.getSize() * 2);
+				ball.move();
+				ball.bounce(fieldX, fieldY, fieldW, fieldH);
+				//System.out.println(part + ": " + hole.countPoints(ball.getPoints()));
+				if(Math.abs(ball.getVelX()) < 2.0 && Math.abs(ball.getVelY()) < 2.0){
+					if(hole.countPoints(ball.getPoints()) == ball.getPoints().size()){
+						ball.setVelX(0.0);
+						ball.setVelY(0.0);
+						ball.setAccX(0.0);
+						ball.setAccY(0.0);
+						status = true;
+					}
+					/*else if(hole.countPoints(ball.getPoints()) >= 3){
+						ball.setVelX(ball.getVelX() + ((hole.getPosX() - ball.getPosX()) / 480));
+						ball.setVelY(ball.getVelY() + ((hole.getPosY() - ball.getPosY()) / 480));
+						//status = true;
+					}*/
 				}
-				if(posY < fieldY || posY > fieldH - size){
-
-					velY *= -1.0;
-					accY *= -1.0;
-				}
-
-				double dist = Math.sqrt(Math.pow(holeX - posX, 2) + Math.pow(holeY - posY, 2));
-				if(Math.abs(velX) < 0.3 && Math.abs(velY) < 0.3 && hole.contains(posX + size, posY) && hole.contains(posX - size, posY) && hole.contains(posX, posY + size) && hole.contains(posX, posY - size)){
-					velX = 0.0;
-					velY = 0.0;
-					accX = 0.0;
-					accY = 0.0;
-					status = true;
+				else{
+					status = false;
+					wait = 0;
 				}
 
 				if(status)
 					wait++;
-				if(wait == 30){
-					level++;
+				if(wait == 60){
+					part++;
 					wait = 0;
 					status = false;
-					if(level != 1){
-						holeX = 50.0;
-						holeY = 50.0;
-						posX = 300.0;
-						posY = 300.0;
+					if(part != 1){
+						level = new Level(2, 2, 3, 6, fieldX, fieldY, fieldW, fieldH);
+						hole = new Hole(300.0, 50.0);
+						ball = new Ball(300.0, 540.0);
 					}
 				}
-				// levels
+				// parts
+				//if(part == 1)
 
 			}
 
@@ -236,25 +193,19 @@ public class MiniGolf extends Application implements EventHandler<InputEvent>{
 	public void handle(final InputEvent event){
 
 		// menu
-		if(level == 0){
+		if(part == 0){
 			if(event instanceof KeyEvent)
-				level++;
+				part++;
 		}
 
 		// game
 		else{
 
-			if(wait <= 1 && event instanceof MouseEvent){
-				double disX = posX - ((MouseEvent)event).getX();
-				double disY = posY - ((MouseEvent)event).getY();
-				velX += disX / 60;
-				velY += disY / 60;
-			}
-
-
-			// level 1
-			if(level == 1){
-				//
+			if(wait <= 1 && event instanceof MouseEvent && Math.round(Math.abs(ball.getVelX()) * 100) / 100 == 0.0 && Math.round(Math.abs(ball.getVelY()) * 100) / 100 == 0.0){
+				double disX = ball.getPosX() - ((MouseEvent)event).getX();
+				double disY = ball.getPosY() - ((MouseEvent)event).getY();
+				ball.setVelX(ball.getVelX() + disX / 20);
+				ball.setVelY(ball.getVelY() + disY / 20);
 			}
 
 		}
