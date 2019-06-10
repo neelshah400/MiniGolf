@@ -37,14 +37,33 @@ public class Obstacle{
 			xPoints[i] = (Math.random() * maxX) + minX;
 			yPoints[i] = (Math.random() * maxY) + minY;
 		}
-		coordinates = new double[nPoints * 2];
-		for(int i = 0; i < nPoints * 2; i++){
-			if(i % 2 == 0)
-				coordinates[i] = xPoints[i / 2];
-			else
-				coordinates[i] = yPoints[i / 2];
-		}
+		coordinates = combineAlt(nPoints, xPoints, yPoints);
 		polygon = new Polygon(coordinates);
+
+	}
+
+	// nondefault constructor
+	public Obstacle(double [] xPoints, double [] yPoints){
+
+		nPoints = xPoints.length;
+		this.xPoints = xPoints;
+		this.yPoints = yPoints;
+		coordinates = combineAlt(nPoints, xPoints, yPoints);
+		polygon = new Polygon(coordinates);
+
+	}
+
+	// combine arrays in alternating order
+	public double [] combineAlt(int n, double [] a, double [] b){
+
+		double [] arr = new double[n * 2];
+		for(int i = 0; i < n * 2; i++){
+			if(i % 2 == 0)
+				arr[i] = a[i / 2];
+			else
+				arr[i] = b[i / 2];
+		}
+		return arr;
 
 	}
 

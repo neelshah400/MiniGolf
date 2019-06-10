@@ -85,13 +85,27 @@ public class Ball{
 		posY += velY;
 
 		// print
-		System.out.println("pos: (" + (double)Math.round(posX * 100) / 100 + ", " + (double)Math.round(posY * 100) / 100 + ")\tvel: (" + (double)Math.round(velX * 100) / 100 + ", " + (double)Math.round(velY * 100) / 100 + ")\tacc: (" + (double)Math.round(accX * 100) / 100 + ", " + (double)Math.round(accY * 100) / 100 + ")");
+		//System.out.println("pos: (" + (double)Math.round(posX * 100) / 100 + ", " + (double)Math.round(posY * 100) / 100 + ")\tvel: (" + (double)Math.round(velX * 100) / 100 + ", " + (double)Math.round(velY * 100) / 100 + ")\tacc: (" + (double)Math.round(accX * 100) / 100 + ", " + (double)Math.round(accY * 100) / 100 + ")");
 
 	}
 
 	// bounce off walls
-	public void bounce(double fieldX, double fieldY, double fieldW, double fieldH){
+	public void bounce(Level level, double fieldX, double fieldY, double fieldW, double fieldH){
 
+		for(Obstacle obstacle : level.getObstacles()){
+			for(Point2D point : getPoints()){
+				if(obstacle.getPolygon().contains(point)){
+					//velX = 0.0;
+					//velY = 0.0;
+					velX *= -1.0;
+					accX *= -1.0;
+					velY *= -1.0;
+					accY *= -1.0;
+					if(factor == 0.01)
+						factor = 0.03;
+				}
+			}
+		}
 		if(posX - size <= fieldX || posX >= fieldW - size){
 			velX *= -1.0;
 			//velX *= 0.7;
@@ -109,9 +123,10 @@ public class Ball{
 				factor = 0.03;
 		}
 
+
 	}
 
-	// returns points from a circle
+	// return points from a circle
 	public ArrayList<Point2D> getPoints(){
 
 		ArrayList<Point2D> list = new ArrayList<Point2D>();

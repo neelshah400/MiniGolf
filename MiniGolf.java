@@ -90,7 +90,8 @@ public class MiniGolf extends Application implements EventHandler<InputEvent>{
 		field = new Rectangle2D(fieldX, fieldY, fieldW * 2, fieldH * 2);
 		gc.setFill(bg);
 		gc.fillRect(fieldX, fieldY, fieldW, fieldH);
-		level = new Level(2, 2, 3, 6, fieldX, fieldY, fieldW, fieldH);
+		//level = new Level(2, 2, 3, 6, fieldX, fieldY, fieldW, fieldH);
+		level = new Level(part);
 		hole = new Hole(300.0, 50.0);
 		ball = new Ball(300.0, 540.0);
 
@@ -125,7 +126,7 @@ public class MiniGolf extends Application implements EventHandler<InputEvent>{
 
 			// menu
 			if(part == 0){
-				gc.setFill(dark);
+				gc.setFill(Color.BLACK);
 				gc.setFont(xl);
 				gc.fillText("MiniGolf", 175, 64);
 				gc.setFont(m);
@@ -135,21 +136,28 @@ public class MiniGolf extends Application implements EventHandler<InputEvent>{
 			// game
 			else{
 
-				gc.setFill(dark);
-				gc.setFont(xl);
-				gc.fillText("Level " + part, 200, 64);
+				// text
+				gc.setFill(Color.BLACK);
+				gc.setFont(m);
+				gc.fillText("Level " + part, 0, 36);
 
+				// obstacles
 				gc.setFill(dark);
+				System.out.println(level.getObstacles().size());
 				for(Obstacle obstacle : level.getObstacles()){
 					gc.fillPolygon(obstacle.getXPoints(), obstacle.getYPoints(), obstacle.getNPoints());
+					System.out.println("a" + level.getObstacles().size() + " " + obstacle.getXPoints());
 				}
+
+				// hole
+				gc.setFill(Color.BLACK);
 				gc.fillOval(hole.getPosX() - hole.getSize(), hole.getPosY() - hole.getSize(), hole.getSize() * 2, hole.getSize() * 2);
 
+				// ball
 				gc.setFill(Color.WHITE);
 				gc.fillOval(ball.getPosX() - ball.getSize(), ball.getPosY() - ball.getSize(), ball.getSize() * 2, ball.getSize() * 2);
 				ball.move();
-				ball.bounce(fieldX, fieldY, fieldW, fieldH);
-				//System.out.println(part + ": " + hole.countPoints(ball.getPoints()));
+				ball.bounce(level, fieldX, fieldY, fieldW, fieldH);
 				if(Math.abs(ball.getVelX()) < 2.0 && Math.abs(ball.getVelY()) < 2.0){
 					if(hole.countPoints(ball.getPoints()) == ball.getPoints().size()){
 						ball.setVelX(0.0);
@@ -158,17 +166,13 @@ public class MiniGolf extends Application implements EventHandler<InputEvent>{
 						ball.setAccY(0.0);
 						status = true;
 					}
-					/*else if(hole.countPoints(ball.getPoints()) >= 3){
-						ball.setVelX(ball.getVelX() + ((hole.getPosX() - ball.getPosX()) / 480));
-						ball.setVelY(ball.getVelY() + ((hole.getPosY() - ball.getPosY()) / 480));
-						//status = true;
-					}*/
 				}
 				else{
 					status = false;
 					wait = 0;
 				}
 
+				// changing part
 				if(status)
 					wait++;
 				if(wait == 60){
@@ -176,13 +180,12 @@ public class MiniGolf extends Application implements EventHandler<InputEvent>{
 					wait = 0;
 					status = false;
 					if(part != 1){
-						level = new Level(2, 2, 3, 6, fieldX, fieldY, fieldW, fieldH);
+						//level = new Level(2, 2, 3, 6, fieldX, fieldY, fieldW, fieldH);
+						level = new Level(part);
 						hole = new Hole(300.0, 50.0);
 						ball = new Ball(300.0, 540.0);
 					}
 				}
-				// parts
-				//if(part == 1)
 
 			}
 
@@ -201,6 +204,7 @@ public class MiniGolf extends Application implements EventHandler<InputEvent>{
 		// game
 		else{
 
+			// drag mouse to move ball
 			if(wait <= 1 && event instanceof MouseEvent && Math.round(Math.abs(ball.getVelX()) * 100) / 100 == 0.0 && Math.round(Math.abs(ball.getVelY()) * 100) / 100 == 0.0){
 				double disX = ball.getPosX() - ((MouseEvent)event).getX();
 				double disY = ball.getPosY() - ((MouseEvent)event).getY();

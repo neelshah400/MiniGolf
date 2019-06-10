@@ -38,34 +38,22 @@ public class Level{
 
 	}
 
+	// nondefault constructor
+	public Level(int level){
+
+		obstacles = new ArrayList<Obstacle>();
+		if(level == 0 || level == 1){
+			double [] xPoints = {250.0, 350.0, 300.0};
+			double [] yPoints = {200.0, 200.0, 100.0};
+			obstacles.add(new Obstacle(xPoints, yPoints));
+		}
+
+	}
+
 	// getter methods
 	public ArrayList<Obstacle> getObstacles(){ return obstacles; }
 
 	// setter methods
 	public void setObstacles(ArrayList<Obstacle> obstacles){ this.obstacles = obstacles; }
-
-	/*// fill obstacles
-	public void fillObstacles(double minX, double minY, double maxX, double maxY){
-
-		for(int i = 0; i < numObstacles; i++){
-			int numPoints = (int)(Math.random() * (maxPoints - minPoints + 1) + minPoints);
-			double [] xPoints = new double[numPoints];
-			double [] yPoints = new double[numPoints];
-			for(int j = 0; j < numPoints; j++){
-				xPoints[j] = (int)(Math.random() * maxX) + minX;
-				yPoints[j] = (int)(Math.random() * maxY) + minY;
-			}
-			double [] coordinates = new double[numPoints * 2];
-			for(int j = 0; j < coordinates.length; j++){
-				if(j % 2 == 0)
-					coordinates[j] = xPoints[j / 2];
-				else
-					coordinates[j] = yPoints[j / 2];
-			}
-			Polygon polygon = new Polygon(coordinates);
-			obstacles.add(polygon);
-		}
-
-	}*/
 
 }
