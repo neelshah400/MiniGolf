@@ -67,6 +67,31 @@ public class Obstacle{
 
 	}
 
+	public ArrayList<Point2D> getPoints(){
+
+		ArrayList<Point2D> points = new ArrayList<Point2D>();
+		for(int i = 0; i < getCoordinates().length; i += 2)
+			points.add(new Point2D(getCoordinates()[i], getCoordinates()[i + 1]));
+		return points;
+
+	}
+
+	public ArrayList<Line> getLines(){
+
+		ArrayList<Line> lines = new ArrayList<Line>();
+		for(int i = 0; i < getPoints().size(); i++){
+			for(int j = 0; j < getPoints().size(); j++){
+				if(getPoints().get(i) != getPoints().get(j)){
+					Line line = new Line(getPoints().get(i).getX(), getPoints().get(i).getY(), getPoints().get(j).getX(), getPoints().get(j).getY());
+					if(!lines.contains(line))
+						lines.add(line);
+				}
+			}
+		}
+		return lines;
+
+	}
+
 	// getter methods
 	public int getNPoints(){ return nPoints; }
 	public double [] getXPoints(){ return xPoints; }

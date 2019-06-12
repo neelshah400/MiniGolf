@@ -90,19 +90,26 @@ public class Ball{
 	}
 
 	// bounce off walls
-	public void bounce(Level level, double fieldX, double fieldY, double fieldW, double fieldH){
+	public void bounce(Level level, Point2D launch, double fieldX, double fieldY, double fieldW, double fieldH){
 
 		for(Obstacle obstacle : level.getObstacles()){
 			for(Point2D point : getPoints()){
 				if(obstacle.getPolygon().contains(point)){
+					ArrayList<Line> lines = obstacle.getLines();
+					for(Line line : lines){
+						if(line.contains(point)){
+							double angle = (new Point2D(1, 0)).angle(point.subtract(launch));
+							System.out.println(angle);
+						}
+					}
 					//velX = 0.0;
 					//velY = 0.0;
-					velX *= -1.0;
+					/*velX *= -1.0;
 					accX *= -1.0;
 					velY *= -1.0;
 					accY *= -1.0;
 					if(factor == 0.01)
-						factor = 0.03;
+						factor = 0.03;*/
 				}
 			}
 		}

@@ -45,6 +45,7 @@ public class MiniGolf extends Application implements EventHandler<InputEvent>{
 	int part;
 	boolean status;
 	int wait;
+	Point2D launch;
 
 	public static void main(String[]args){
 
@@ -143,11 +144,8 @@ public class MiniGolf extends Application implements EventHandler<InputEvent>{
 
 				// obstacles
 				gc.setFill(dark);
-				System.out.println(level.getObstacles().size());
-				for(Obstacle obstacle : level.getObstacles()){
+				for(Obstacle obstacle : level.getObstacles())
 					gc.fillPolygon(obstacle.getXPoints(), obstacle.getYPoints(), obstacle.getNPoints());
-					System.out.println("a" + level.getObstacles().size() + " " + obstacle.getXPoints());
-				}
 
 				// hole
 				gc.setFill(Color.BLACK);
@@ -157,7 +155,7 @@ public class MiniGolf extends Application implements EventHandler<InputEvent>{
 				gc.setFill(Color.WHITE);
 				gc.fillOval(ball.getPosX() - ball.getSize(), ball.getPosY() - ball.getSize(), ball.getSize() * 2, ball.getSize() * 2);
 				ball.move();
-				ball.bounce(level, fieldX, fieldY, fieldW, fieldH);
+				ball.bounce(level, launch, fieldX, fieldY, fieldW, fieldH);
 				if(Math.abs(ball.getVelX()) < 2.0 && Math.abs(ball.getVelY()) < 2.0){
 					if(hole.countPoints(ball.getPoints()) == ball.getPoints().size()){
 						ball.setVelX(0.0);
@@ -206,6 +204,7 @@ public class MiniGolf extends Application implements EventHandler<InputEvent>{
 
 			// drag mouse to move ball
 			if(wait <= 1 && event instanceof MouseEvent && Math.round(Math.abs(ball.getVelX()) * 100) / 100 == 0.0 && Math.round(Math.abs(ball.getVelY()) * 100) / 100 == 0.0){
+				launch = new Point2D(((MouseEvent)event).getX(), ((MouseEvent)event).getY());
 				double disX = ball.getPosX() - ((MouseEvent)event).getX();
 				double disY = ball.getPosY() - ((MouseEvent)event).getY();
 				ball.setVelX(ball.getVelX() + disX / 20);
