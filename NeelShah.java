@@ -20,7 +20,7 @@ import javafx.scene.text.*;
 // other imports
 import java.util.ArrayList;
 
-public class MiniGolf extends Application implements EventHandler<InputEvent>{
+public class NeelShah extends Application implements EventHandler<InputEvent>{
 
 	// color variables
 	Color bg, light, dark;

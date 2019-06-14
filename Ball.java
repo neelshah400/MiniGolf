@@ -92,14 +92,24 @@ public class Ball{
 	// bounce off walls
 	public void bounce(Level level, Point2D launch, double fieldX, double fieldY, double fieldW, double fieldH){
 
+		boolean collision = false;
+		double minDistance = (double)(Integer.MAX_VALUE);
+		Line nearestLine = new Line(0.0, 0.0, 0.0, 0.0);
 		for(Obstacle obstacle : level.getObstacles()){
 			for(Point2D point : getPoints()){
 				if(obstacle.getPolygon().contains(point)){
+					collision = true;
 					ArrayList<Line> lines = obstacle.getLines();
 					for(Line line : lines){
-						if(line.contains(point)){
-							double angle = (new Point2D(1, 0)).angle(point.subtract(launch));
-							System.out.println(angle);
+						double [] distances = new double[3];
+						distances[0] = point.distance(line.getStartX(), line.getStartY());
+						distances[1] = point.distance((line.getStartX() + line.getEndX()) / 2, (line.getStartY() + line.getEndY() / 2));
+						distances[2] = point.distance(line.getEndX(), line.getEndY());
+						for(double distance : distances){
+							if(distance < minDistance){
+								minDistance = distance;
+								nearestLine = line;
+							}
 						}
 					}
 					//velX = 0.0;
@@ -113,6 +123,23 @@ public class Ball{
 				}
 			}
 		}
+		if(collision){
+			//double angle = (new Point2D(1, 0)).angle(nearestPoint.subtract(launch));
+			double slopeLine = (nearestLine.getEndY() - nearestLine.getStartY()) / (nearestLine .getEndX() - nearestLine.getStartX());
+			double slopeLaunch = (getPosY() - launch.getY()) / (getPosX() - launch.getX());
+			System.out.println(slopeLine + " " + slopeLaunch);
+			double slope = -1.0 * slopeLaunch / slopeLine;
+			System.out.println(slope);
+			if(slope > 0){
+				velX *= -1.0;
+			}
+			else{
+				velY *= -1.0;
+			}
+			//velX = -1.0 * slopeLaunch * slopeLine;
+			//velY = -1.0 * slopeLaunch * slopeLine;
+		}
+
 		if(posX - size <= fieldX || posX >= fieldW - size){
 			velX *= -1.0;
 			//velX *= 0.7;
@@ -137,15 +164,15 @@ public class Ball{
 	public ArrayList<Point2D> getPoints(){
 
 		ArrayList<Point2D> list = new ArrayList<Point2D>();
-		list.add(new Point2D(posX, posY)); // center
+		//list.add(new Point2D(posX, posY)); // center
 		list.add(new Point2D(posX - size, posY)); // left
 		list.add(new Point2D(posX + size, posY)); // right
 		list.add(new Point2D(posX, posY - size)); // top
 		list.add(new Point2D(posX, posY + size)); // bottom
-		list.add(new Point2D(posX - size / 2, posY - size / 2)); // left-top
-		list.add(new Point2D(posX + size / 2, posY - size / 2)); // right-top
-		list.add(new Point2D(posX - size / 2, posY + size / 2)); // left-bottom
-		list.add(new Point2D(posX + size / 2, posY + size / 2)); // right-bottom
+		list.add(new Point2D(posX - size, posY - size)); // left-top
+		list.add(new Point2D(posX + size, posY - size)); // right-top
+		list.add(new Point2D(posX - size, posY + size)); // left-bottom
+		list.add(new Point2D(posX + size, posY + size)); // right-bottom
 		return list;
 
 	}
