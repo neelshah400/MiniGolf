@@ -65,20 +65,8 @@ public class Ball{
 	// position, velocity, and acceleration
 	public void move(){
 
-		/*if(velX < 0)
-			accX = 0.02;
-		else if(velX > 0)
-			accX = -0.02;
-		else
-			accX = 0.0;*/
 		accX = -1.0 * factor * velX;
 		velX += accX;
-		/*if(velY < 0)
-			accY = 0.02;
-		else if(velY > 0)
-			accY = -0.02;
-		else
-			accY = 0.0;*/
 		accY = -1.0 * factor * velY;
 		velY += accY;
 		posX += velX;

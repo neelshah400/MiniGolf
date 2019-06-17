@@ -39,7 +39,11 @@ public class NeelShah extends Application implements EventHandler<InputEvent>{
 	// graphics variables
 	Level level;
 	Hole hole;
-	Ball ball;
+	//Ball ball;
+	GolfBall ball;
+
+	// audio variables
+	AudioClip background, success;
 
 	// other variables
 	int part;
@@ -94,7 +98,8 @@ public class NeelShah extends Application implements EventHandler<InputEvent>{
 		//level = new Level(2, 2, 3, 6, fieldX, fieldY, fieldW, fieldH);
 		level = new Level(part);
 		hole = new Hole(300.0, 50.0);
-		ball = new Ball(300.0, 540.0);
+		//ball = new Ball(300.0, 540.0);
+		ball = new GolfBall(300.0, 540.0);
 
 		// animations setup
 		animate = new AnimateObjects();
@@ -106,9 +111,9 @@ public class NeelShah extends Application implements EventHandler<InputEvent>{
 		scene.addEventHandler(MouseEvent.MOUSE_RELEASED, this);
 
 		// audio setup
-		URL resource = getClass().getResource("test.wav");
-		AudioClip clip = new AudioClip(resource.toString());
-		//clip.play();
+		background = new AudioClip(getClass().getResource("Background.mp3").toString());
+		background.play();
+		success = new AudioClip(getClass().getResource("Success.mp3").toString());
 
 		// show stage
 		stage.show();
@@ -149,19 +154,17 @@ public class NeelShah extends Application implements EventHandler<InputEvent>{
 
 				// hole
 				gc.setFill(Color.BLACK);
-				gc.fillOval(hole.getPosX() - hole.getSize(), hole.getPosY() - hole.getSize(), hole.getSize() * 2, hole.getSize() * 2);
+				gc.fillOval(hole.getPosition().getX() - hole.getRadius(), hole.getPosition().getY() - hole.getRadius(), hole.getRadius() * 2, hole.getRadius() * 2);
 
 				// ball
 				gc.setFill(Color.WHITE);
-				gc.fillOval(ball.getPosX() - ball.getSize(), ball.getPosY() - ball.getSize(), ball.getSize() * 2, ball.getSize() * 2);
-				ball.move();
-				ball.bounce(level, launch, fieldX, fieldY, fieldW, fieldH);
-				if(Math.abs(ball.getVelX()) < 2.0 && Math.abs(ball.getVelY()) < 2.0){
+				gc.fillOval(ball.getPosition().getX() - ball.getRadius(), ball.getPosition().getY() - ball.getRadius(), ball.getRadius() * 2, ball.getRadius() * 2);
+				//ball.move();
+				ball./*bounce*/move(level, launch, fieldX, fieldY, fieldW, fieldH);
+				if(Math.abs(ball.getVelocity().getX()) < 2.0 && Math.abs(ball.getVelocity().getY()) < 2.0){
 					if(hole.countPoints(ball.getPoints()) == ball.getPoints().size()){
-						ball.setVelX(0.0);
-						ball.setVelY(0.0);
-						ball.setAccX(0.0);
-						ball.setAccY(0.0);
+						ball.setVelocity(new Point2D(0.0, 0.0));
+						ball.setAcceleration(new Point2D(0.0, 0.0));
 						status = true;
 					}
 				}
@@ -173,7 +176,9 @@ public class NeelShah extends Application implements EventHandler<InputEvent>{
 				// changing part
 				if(status)
 					wait++;
-				if(wait == 60){
+				if(wait == 1)
+					success.play();
+				if(wait == 240){
 					part++;
 					wait = 0;
 					status = false;
@@ -181,7 +186,8 @@ public class NeelShah extends Application implements EventHandler<InputEvent>{
 						//level = new Level(2, 2, 3, 6, fieldX, fieldY, fieldW, fieldH);
 						level = new Level(part);
 						hole = new Hole(300.0, 50.0);
-						ball = new Ball(300.0, 540.0);
+						//ball = new Ball(300.0, 540.0);
+						ball = new GolfBall(300.0, 540.0);
 					}
 				}
 
@@ -203,13 +209,11 @@ public class NeelShah extends Application implements EventHandler<InputEvent>{
 		else{
 
 			// drag mouse to move ball
-			if(wait <= 1 && event instanceof MouseEvent && Math.round(Math.abs(ball.getVelX()) * 100) / 100 == 0.0 && Math.round(Math.abs(ball.getVelY()) * 100) / 100 == 0.0){
+			//if(wait <= 1 && event instanceof MouseEvent && Math.round(Math.abs(ball.getVelocity().getX()) * 100) / 100 == 0.0 && Math.round(Math.abs(ball.getVelocity().getY()) * 100) / 100 == 0.0){
 				launch = new Point2D(((MouseEvent)event).getX(), ((MouseEvent)event).getY());
-				double disX = ball.getPosX() - ((MouseEvent)event).getX();
-				double disY = ball.getPosY() - ((MouseEvent)event).getY();
-				ball.setVelX(ball.getVelX() + disX / 20);
-				ball.setVelY(ball.getVelY() + disY / 20);
-			}
+				Point2D mouse = new Point2D(((MouseEvent)event).getX(), ((MouseEvent)event).getY());
+				ball.setVelocity((ball.getPosition().subtract(mouse).multiply(1 / 20.0)));
+			//}
 
 		}
 

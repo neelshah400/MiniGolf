@@ -23,37 +23,30 @@ import java.util.ArrayList;
 public class Hole{
 
 	// instance variables
-	private double posX, posY, size;
-	private Circle hole;
+	private Point2D position;
+	private double radius;
+	private Circle circle;
 
 	// nondefault constructor
-	public Hole(double posX, double posY){
+	public Hole(double x, double y){
 
-		this.posX = posX;
-		this.posY = posY;
-		size = 25.0;
-		hole = new Circle(posX, posY, size);
+		position = new Point2D(x, y);
+		radius = 25.0;
+		circle = new Circle(x, y, radius);
 
 	}
 
 	// getter methods
-	public double getPosX(){ return posX; }
-	public double getPosY(){ return posY; }
-	public double getSize(){ return size; }
-	public Circle getHole(){ return hole; }
-
-	// setter methods
-	public void setPosX(double posX){ this.posX = posX; }
-	public void setPosY(double posY){ this.posY = posY; }
-	public void setSize(double size){ this.size = size; }
-	public void setBall(Circle ball){ this.hole = hole; }
+	public Point2D getPosition(){ return position; }
+	public double getRadius(){ return radius; }
+	public Circle getCircle(){ return circle; }
 
 	// checks how many of the points specified are inside the hole
 	public int countPoints(ArrayList<Point2D> list){
 
 		int count = 0;
 		for(Point2D point : list){
-			if(getHole().contains(point))
+			if(getCircle().contains(point))
 				count++;
 		}
 		return count;
