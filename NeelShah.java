@@ -81,7 +81,7 @@ public class NeelShah extends Application implements EventHandler<InputEvent>{
 		fieldH = 600;
 
 		// other variables
-		part = 5;
+		part = 0;
 		status = false;
 		wait = 0;
 		lives = 50;
