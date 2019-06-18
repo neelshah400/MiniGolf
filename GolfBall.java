@@ -66,9 +66,6 @@ public class GolfBall{
 		velocity = velocity.add(acceleration);
 		position = position.add(velocity);
 
-		// print
-		//System.out.println(position + "" + velocity + "" + acceleration);
-
 	}
 
 	// check if golf ball hits obstacle
@@ -85,10 +82,8 @@ public class GolfBall{
 		// obstacles
 		for(Obstacle obstacle : level.getObstacles()){
 			for(Point2D point : getPoints()){
-				if(obstacle.getPolygon().contains(point)){
-					//System.out.println("true");
+				if(obstacle.getPolygon().contains(point))
 					return true;
-				}
 			}
 		}
 
@@ -113,7 +108,7 @@ public class GolfBall{
 		// obstacles
 		else{
 			double minDistance = (double)(Integer.MAX_VALUE);
-			Line closestLine;
+			Line closestLine = new Line(0.0, 0.0, 0.0, 0.0);
 			double closestSlope = 0.0;
 			double closestY_int = 0.0;
 			for(Obstacle obstacle : level.getObstacles()){
@@ -130,7 +125,12 @@ public class GolfBall{
 				}
 			}
 			double angle = Math.toRadians(position.angle(new Point2D(300.0, ((300.0 * closestSlope) + closestY_int)), launch));
-			velocity = (new Point2D(velocity.getX() * Math.cos(angle), velocity.getY() * Math.sin(angle))).multiply(-1.0);
+			if(closestLine.getEndX() == 0.0)
+				velocity = new Point2D(-1.0 * velocity.getX(), velocity.getY());
+			else if(closestSlope == -0.75)
+				velocity = new Point2D(velocity.getX(), -1.0 * velocity.getY());
+			else
+				velocity = (new Point2D(velocity.getX() * Math.cos(angle), velocity.getY() * Math.sin(angle))).multiply(-1.0);
 		}
 
 		// changing acceleration
@@ -150,15 +150,14 @@ public class GolfBall{
 	public ArrayList<Point2D> getPoints(){
 
 		ArrayList<Point2D> list = new ArrayList<Point2D>();
-		//list.add(new Point2D(position.getX(), position.getY())); // center
 		list.add(new Point2D(position.getX() - radius, position.getY())); // left
 		list.add(new Point2D(position.getX() + radius, position.getY())); // right
 		list.add(new Point2D(position.getX(), position.getY() - radius)); // top
 		list.add(new Point2D(position.getX(), position.getY() + radius)); // bottom
-		list.add(new Point2D(position.getX() - (radius * 0.7), position.getY() - radius)); // left-top
-		list.add(new Point2D(position.getX() + (radius * 0.7), position.getY() - radius)); // right-top
-		list.add(new Point2D(position.getX() - (radius * 0.7), position.getY() + radius)); // left-bottom
-		list.add(new Point2D(position.getX() + (radius * 0.7), position.getY() + radius)); // right-bottom
+		list.add(new Point2D(position.getX() - (radius * Math.sqrt(0.5)), position.getY() - radius)); // left-top
+		list.add(new Point2D(position.getX() + (radius * Math.sqrt(0.5)), position.getY() - radius)); // right-top
+		list.add(new Point2D(position.getX() - (radius * Math.sqrt(0.5)), position.getY() + radius)); // left-bottom
+		list.add(new Point2D(position.getX() + (radius * Math.sqrt(0.5)), position.getY() + radius)); // right-bottom
 		return list;
 
 	}

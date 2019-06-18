@@ -28,21 +28,6 @@ public class Obstacle{
 	private Polygon polygon;
 
 	// nondefault constructor
-	public Obstacle(int nPoints, double minX, double minY, double maxX, double maxY){
-
-		this.nPoints = nPoints;
-		xPoints = new double[nPoints];
-		yPoints = new double[nPoints];
-		for(int i = 0; i < nPoints; i++){
-			xPoints[i] = (Math.random() * maxX) + minX;
-			yPoints[i] = (Math.random() * maxY) + minY;
-		}
-		coordinates = combineAlt(nPoints, xPoints, yPoints);
-		polygon = new Polygon(coordinates);
-
-	}
-
-	// nondefault constructor
 	public Obstacle(double [] xPoints, double [] yPoints){
 
 		nPoints = xPoints.length;

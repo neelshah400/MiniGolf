@@ -39,17 +39,20 @@ public class NeelShah extends Application implements EventHandler<InputEvent>{
 	// graphics variables
 	Level level;
 	Hole hole;
-	//Ball ball;
 	GolfBall ball;
 
 	// audio variables
-	AudioClip background, success;
+	AudioClip background, beep, success;
+
+	// image variables
+	Image heart;
 
 	// other variables
 	int part;
 	boolean status;
 	int wait;
 	Point2D launch;
+	int lives;
 
 	public static void main(String[]args){
 
@@ -78,9 +81,10 @@ public class NeelShah extends Application implements EventHandler<InputEvent>{
 		fieldH = 600;
 
 		// other variables
-		part = 0;
+		part = 5;
 		status = false;
 		wait = 0;
+		lives = 50;
 
 		// graphics setup
 		stage.setTitle("MiniGolf");
@@ -95,10 +99,8 @@ public class NeelShah extends Application implements EventHandler<InputEvent>{
 		field = new Rectangle2D(fieldX, fieldY, fieldW * 2, fieldH * 2);
 		gc.setFill(bg);
 		gc.fillRect(fieldX, fieldY, fieldW, fieldH);
-		//level = new Level(2, 2, 3, 6, fieldX, fieldY, fieldW, fieldH);
 		level = new Level(part);
 		hole = new Hole(300.0, 50.0);
-		//ball = new Ball(300.0, 540.0);
 		ball = new GolfBall(300.0, 540.0);
 
 		// animations setup
@@ -107,13 +109,16 @@ public class NeelShah extends Application implements EventHandler<InputEvent>{
 
 		// event handlers
 		scene.addEventHandler(KeyEvent.KEY_PRESSED, this);
-		//scene.addEventHandler(MouseEvent.MOUSE_CLICKED, this);
 		scene.addEventHandler(MouseEvent.MOUSE_RELEASED, this);
 
 		// audio setup
 		background = new AudioClip(getClass().getResource("Background.mp3").toString());
 		background.play();
+		beep = new AudioClip(getClass().getResource("Beep.mp3").toString());
 		success = new AudioClip(getClass().getResource("Success.mp3").toString());
+
+		// image setup
+		heart = new Image("BigHeart.png");
 
 		// show stage
 		stage.show();
@@ -136,21 +141,36 @@ public class NeelShah extends Application implements EventHandler<InputEvent>{
 				gc.setFont(xl);
 				gc.fillText("MiniGolf", 175, 64);
 				gc.setFont(m);
+				gc.fillText("- Controls: drag mouse to shoot", 10, 150);
+				gc.fillText("- Movement: bouncing is allowed", 10, 200);
+				gc.fillText("- Lives: " + lives, 10, 250);
+				gc.fillText("- Collect hearts to gain lives", 10, 300);
+				gc.fillText("- Ball may get stuck at slow speeds", 10, 350);
 				gc.fillText("Press any key to start.", 125, fieldH - 10);
 			}
 
 			// game
-			else{
+			else if(part <= 5){
 
 				// text
 				gc.setFill(Color.BLACK);
 				gc.setFont(m);
-				gc.fillText("Level " + part, 0, 36);
+				gc.fillText("Level " + part, 10, 46);
+
+				// lives
+				gc.drawImage(heart, 500.0, 10.0);
+				gc.fillText("" + lives, 550.0, 46.0);
 
 				// obstacles
 				gc.setFill(dark);
 				for(Obstacle obstacle : level.getObstacles())
 					gc.fillPolygon(obstacle.getXPoints(), obstacle.getYPoints(), obstacle.getNPoints());
+				for(Heart heart : level.getHearts())
+					gc.drawImage(heart.getImage(), heart.getPosition().getX(), heart.getPosition().getY());
+				if(level.removeHearts(ball) > 0){
+					lives += level.removeHearts(ball);
+					beep.play();
+				}
 
 				// hole
 				gc.setFill(Color.BLACK);
@@ -159,8 +179,7 @@ public class NeelShah extends Application implements EventHandler<InputEvent>{
 				// ball
 				gc.setFill(Color.WHITE);
 				gc.fillOval(ball.getPosition().getX() - ball.getRadius(), ball.getPosition().getY() - ball.getRadius(), ball.getRadius() * 2, ball.getRadius() * 2);
-				//ball.move();
-				ball./*bounce*/move(level, launch, fieldX, fieldY, fieldW, fieldH);
+				ball.move(level, launch, fieldX, fieldY, fieldW, fieldH);
 				if(Math.abs(ball.getVelocity().getX()) < 2.0 && Math.abs(ball.getVelocity().getY()) < 2.0){
 					if(hole.countPoints(ball.getPoints()) == ball.getPoints().size()){
 						ball.setVelocity(new Point2D(0.0, 0.0));
@@ -174,6 +193,8 @@ public class NeelShah extends Application implements EventHandler<InputEvent>{
 				}
 
 				// changing part
+				if(lives <= 0)
+					part = 7;
 				if(status)
 					wait++;
 				if(wait == 1)
@@ -182,15 +203,37 @@ public class NeelShah extends Application implements EventHandler<InputEvent>{
 					part++;
 					wait = 0;
 					status = false;
-					if(part != 1){
-						//level = new Level(2, 2, 3, 6, fieldX, fieldY, fieldW, fieldH);
+					if(part >= 1){
 						level = new Level(part);
 						hole = new Hole(300.0, 50.0);
-						//ball = new Ball(300.0, 540.0);
 						ball = new GolfBall(300.0, 540.0);
 					}
 				}
 
+			}
+
+			// winning
+			else if(part == 6){
+				gc.setFill(Color.BLACK);
+				gc.setFont(xl);
+				gc.fillText("You Won", 175, 64);
+				gc.setFont(m);
+				gc.fillText("Press any key to play again.", 100, fieldH - 10);
+				status = false;
+				wait = 0;
+				lives = 50;
+			}
+
+			// losing
+			else{
+				gc.setFill(Color.BLACK);
+				gc.setFont(xl);
+				gc.fillText("You Lost", 175, 64);
+				gc.setFont(m);
+				gc.fillText("Press any key to play again.", 100, fieldH - 10);
+				status = false;
+				wait = 0;
+				lives = 50;
 			}
 
 		}
@@ -205,15 +248,22 @@ public class NeelShah extends Application implements EventHandler<InputEvent>{
 				part++;
 		}
 
+		// winning and losing
+		if(part > 5){
+			if(event instanceof KeyEvent)
+				part = 0;
+		}
+
 		// game
 		else{
 
 			// drag mouse to move ball
-			//if(wait <= 1 && event instanceof MouseEvent && Math.round(Math.abs(ball.getVelocity().getX()) * 100) / 100 == 0.0 && Math.round(Math.abs(ball.getVelocity().getY()) * 100) / 100 == 0.0){
+			if(wait <= 1 && event instanceof MouseEvent && Math.round(Math.abs(ball.getVelocity().getX()) * 100) / 100 == 0.0 && Math.round(Math.abs(ball.getVelocity().getY()) * 100) / 100 == 0.0){
 				launch = new Point2D(((MouseEvent)event).getX(), ((MouseEvent)event).getY());
 				Point2D mouse = new Point2D(((MouseEvent)event).getX(), ((MouseEvent)event).getY());
 				ball.setVelocity((ball.getPosition().subtract(mouse).multiply(1 / 20.0)));
-			//}
+				lives--;
+			}
 
 		}
 
